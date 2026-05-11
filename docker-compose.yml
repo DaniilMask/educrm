@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres:16
+
+    restart: always
+
+    environment:
+      POSTGRES_DB: educrm
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: .
+
+    restart: always
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - .:/code
+
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
