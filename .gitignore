@@ -1,5 +1,12 @@
+.env
 __pycache__/
 *.pyc
-.env
-postgres_data/
-.aider*
+
+frontend/node_modules/
+frontend/dist/
+
+.vscode/
+
+.idea/
+
+*.log
