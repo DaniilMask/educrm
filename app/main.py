@@ -1,45 +1,46 @@
+import os
+
 from fastapi import FastAPI
-from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base
 from app.database import engine
-from app.database import SessionLocal
 
+from app.routers import users
+from app.routers import auth
+from app.routers import students
+
+from app.models.student import Student
 from app.models.user import User
 
-from app.schemas import UserCreate
-
-from app.security import hash_password
 
 app = FastAPI()
 
-Base.metadata.create_all(bind=engine)
+CORS_ORIGINS = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173"
+).split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[origin.strip() for origin in CORS_ORIGINS if origin.strip()],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+AUTO_CREATE_TABLES = os.getenv("AUTO_CREATE_TABLES", "false").lower() == "true"
+if AUTO_CREATE_TABLES:
+    Base.metadata.create_all(bind=engine)
+
+
+app.include_router(users.router)
+app.include_router(auth.router)
+app.include_router(students.router)
 
 
 @app.get("/")
 def root():
-    return {"status": "ok"}
-
-
-@app.post("/users")
-def create_user(user: UserCreate):
-
-    db: Session = SessionLocal()
-
-    db_user = User(
-        full_name=user.full_name,
-        role=user.role,
-        phone=user.phone,
-        password_hash=hash_password(user.password)
-    )
-
-    db.add(db_user)
-
-    db.commit()
-
-    db.refresh(db_user)
-
     return {
-        "id": db_user.id,
-        "full_name": db_user.full_name
+        "status": "ok"
     }
