@@ -9,9 +9,15 @@ from app.database import engine
 from app.routers import users
 from app.routers import auth
 from app.routers import students
+from app.routers import parents
+from app.routers import branches
+from app.routers import sections
 
 from app.models.student import Student
 from app.models.user import User
+from app.models.parent import Parent
+from app.models.branch import Branch
+from app.models.section import Section
 
 
 app = FastAPI()
@@ -37,6 +43,9 @@ if AUTO_CREATE_TABLES:
 app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(students.router)
+app.include_router(parents.router)
+app.include_router(branches.router)
+app.include_router(sections.router)
 
 
 @app.get("/")
