@@ -18,4 +18,8 @@ When running `vite` in dev mode, requests to `/api/*` are proxied to:
 
 1. Copy `.env.example` to `.env`.
 2. If needed, set `VITE_BACKEND_URL` to your backend address.
+
 3. Run frontend dev server.
+=======
+3. Run frontend dev server.
+
