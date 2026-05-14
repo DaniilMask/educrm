@@ -1,3 +1,9 @@
+"""
+Файл app/schemas/section.py:
+Коротко: этот файл содержит код для части системы.
+Ниже в коде добавлены комментарии и понятные имена, чтобы было легче читать.
+"""
+
 from datetime import date, time
 from typing import Optional
 

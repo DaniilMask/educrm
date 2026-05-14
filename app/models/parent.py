@@ -1,3 +1,9 @@
+"""
+Файл app/models/parent.py:
+Коротко: этот файл содержит код для части системы.
+Ниже в коде добавлены комментарии и понятные имена, чтобы было легче читать.
+"""
+
 from sqlalchemy import Column, Integer, String, Table, ForeignKey
 from sqlalchemy.orm import relationship
 
