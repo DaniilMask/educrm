@@ -1,8 +1,4 @@
-
 const API_BASE_URL =
-=======
-const API_BASE_URL = 
-
   import.meta.env.VITE_API_BASE_URL ??
   (import.meta.env.DEV
     ? '/api'
@@ -63,12 +59,8 @@ export function getStudentsSummary(params?: {
   groupName?: string
 }) {
   const searchParams = new URLSearchParams()
-  if (params?.startDate) {
-    searchParams.set('start_date', params.startDate)
-  }
-  if (params?.endDate) {
-    searchParams.set('end_date', params.endDate)
-  }
+  if (params?.startDate) searchParams.set('start_date', params.startDate)
+  if (params?.endDate) searchParams.set('end_date', params.endDate)
   if (params?.groupName && params.groupName !== 'all') {
     searchParams.set('group_name', params.groupName)
   }
