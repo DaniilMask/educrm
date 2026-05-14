@@ -19,6 +19,7 @@ import {
   EventAvailable,
   People,
   School,
+  Payments,
 } from '@mui/icons-material'
 
 const drawerWidth = 240
@@ -26,15 +27,19 @@ const drawerWidth = 240
 const navItems: { to: string; label: string; icon: ReactElement }[] = [
   { to: '/', label: 'Обзор', icon: <Dashboard /> },
   { to: '/students', label: 'Дети', icon: <People /> },
-  { to: '/groups', label: 'Группы', icon: <School /> },
+  { to: '/groups', label: 'Секции', icon: <School /> },
+  { to: '/parents', label: 'Родители', icon: <People /> },
   { to: '/attendance', label: 'Посещаемость', icon: <EventAvailable /> },
+  { to: '/payments', label: 'Платежи', icon: <Payments /> },
 ]
 
 const pathTitles: Record<string, string> = {
   '/': 'Обзор',
   '/students': 'Дети',
-  '/groups': 'Группы',
+  '/groups': 'Секции',
+  '/parents': 'Родители',
   '/attendance': 'Посещаемость',
+  '/payments': 'Платежи',
 }
 
 export default function AppLayout() {

@@ -1,5 +1,4 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? `${window.location.protocol}//${window.location.hostname}:8000`
+import { apiRequest } from './client'
 
 export type Student = {
   id: number
@@ -28,26 +27,9 @@ export type StudentsSummary = {
   group_name: string | null
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const headers = new Headers(init?.headers ?? undefined)
-  headers.set('Content-Type', 'application/json')
-
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers,
-  })
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}))
-    const detail = typeof body?.detail === 'string' ? body.detail : `HTTP ${response.status}`
-    throw new Error(detail)
-  }
-
-  return response.json() as Promise<T>
-}
 
 export function getStudents() {
-  return request<Student[]>('/students/')
+  return apiRequest<Student[]>('/students/')
 }
 
 export function getStudentsSummary(params?: {
@@ -68,18 +50,18 @@ export function getStudentsSummary(params?: {
 
   const query = searchParams.toString()
   const path = query ? `/students/stats/summary?${query}` : '/students/stats/summary'
-  return request<StudentsSummary>(path)
+  return apiRequest<StudentsSummary>(path)
 }
 
 export function createStudent(payload: StudentCreatePayload) {
-  return request<Student>('/students/', {
+  return apiRequest<Student>('/students/', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
 }
 
 export function deleteStudent(studentId: number) {
-  return request<{ message: string }>(`/students/${studentId}`, {
+  return apiRequest<{ message: string }>(`/students/${studentId}`, {
     method: 'DELETE',
   })
 }
