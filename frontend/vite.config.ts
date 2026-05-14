@@ -1,3 +1,9 @@
+/**
+ * Файл vite.config.ts:
+ * Простое описание: этот файл управляет частью интерфейса или запросами к API.
+ * Комментарий добавлен для прозрачности структуры фронтенда.
+ */
+
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 

@@ -1,3 +1,9 @@
+/**
+ * Файл src/api/client.ts:
+ * Простое описание: этот файл управляет частью интерфейса или запросами к API.
+ * Комментарий добавлен для прозрачности структуры фронтенда.
+ */
+
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ??
   (import.meta.env.DEV
