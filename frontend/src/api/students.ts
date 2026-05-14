@@ -1,3 +1,9 @@
+/**
+ * Файл src/api/students.ts:
+ * Простое описание: этот файл управляет частью интерфейса или запросами к API.
+ * Комментарий добавлен для прозрачности структуры фронтенда.
+ */
+
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ??
   (import.meta.env.DEV
@@ -16,6 +22,7 @@ export type Student = {
 
 export type StudentCreatePayload = {
   full_name: string
+  parent_id?: number
   phone?: string
   parent_name?: string
   parent_phone?: string

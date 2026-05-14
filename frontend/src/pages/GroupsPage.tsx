@@ -1,3 +1,9 @@
+/**
+ * Файл src/pages/GroupsPage.tsx:
+ * Простое описание: этот файл управляет частью интерфейса или запросами к API.
+ * Комментарий добавлен для прозрачности структуры фронтенда.
+ */
+
 import { useEffect, useState } from 'react'
 import { Alert, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
 

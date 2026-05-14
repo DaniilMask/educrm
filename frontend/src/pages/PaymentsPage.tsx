@@ -1,3 +1,9 @@
+/**
+ * Файл src/pages/PaymentsPage.tsx:
+ * Простое описание: этот файл управляет частью интерфейса или запросами к API.
+ * Комментарий добавлен для прозрачности структуры фронтенда.
+ */
+
 import { useEffect, useState } from 'react'
 import { Alert, Button, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material'
 

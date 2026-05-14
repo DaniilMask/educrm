@@ -1,3 +1,9 @@
+/**
+ * Файл src/layouts/AppLayout.tsx:
+ * Простое описание: этот файл управляет частью интерфейса или запросами к API.
+ * Комментарий добавлен для прозрачности структуры фронтенда.
+ */
+
 import { type ReactElement } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
