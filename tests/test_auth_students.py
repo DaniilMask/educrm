@@ -1,3 +1,9 @@
+"""
+Файл tests/test_auth_students.py:
+Коротко: этот файл содержит код для части системы.
+Ниже в коде добавлены комментарии и понятные имена, чтобы было легче читать.
+"""
+
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -11,6 +17,8 @@ from app.security import hash_password
 
 
 TEST_DATABASE_URL = "sqlite+pysqlite:///:memory:"
+# Создаем "временную" базу в памяти.
+# Она живет только во время тестов и не портит реальные данные.
 engine = create_engine(
     TEST_DATABASE_URL,
     connect_args={"check_same_thread": False},
@@ -20,6 +28,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 
 def override_get_db():
+    # Подменяем обычную БД приложения на тестовую.
     db = TestingSessionLocal()
     try:
         yield db
@@ -28,16 +37,19 @@ def override_get_db():
 
 
 def setup_module():
+    # Перед тестами создаем таблицы и подключаем тестовую БД.
     Base.metadata.create_all(bind=engine)
     app.dependency_overrides[get_db] = override_get_db
 
 
 def teardown_module():
+    # После тестов убираем подмену и удаляем таблицы.
     app.dependency_overrides.clear()
     Base.metadata.drop_all(bind=engine)
 
 
 def _create_user(phone: str = "79990000001", password: str = "secret123"):
+    # Вспомогательная функция: создать пользователя для входа в систему.
     db = TestingSessionLocal()
     db_user = User(
         full_name="Test User",
@@ -51,6 +63,8 @@ def _create_user(phone: str = "79990000001", password: str = "secret123"):
 
 
 def _get_token(client: TestClient, phone: str, password: str) -> str:
+    # Вспомогательная функция: логинимся и забираем JWT токен.
+    # JWT — это "пропуск" в защищенные ручки API.
     response = client.post(
         "/login",
         json={"phone": phone, "password": password},
@@ -62,6 +76,7 @@ def _get_token(client: TestClient, phone: str, password: str) -> str:
 
 
 def test_login_invalid_credentials():
+    # Проверяем: с неправильным логином/паролем вход запрещен.
     client = TestClient(app)
 
     response = client.post(
@@ -74,6 +89,8 @@ def test_login_invalid_credentials():
 
 
 def test_protected_students_crud_flow():
+    # Проверяем полный цикл:
+    # create -> read list -> update -> delete для учеников под авторизацией.
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     _create_user()
@@ -108,6 +125,7 @@ def test_protected_students_crud_flow():
 
 
 def test_students_requires_auth():
+    # Проверяем: без токена в students пускать нельзя.
     client = TestClient(app)
     response = client.get("/students/")
     assert response.status_code == 401

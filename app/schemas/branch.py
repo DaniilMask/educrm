@@ -1,3 +1,9 @@
+"""
+Файл app/schemas/branch.py:
+Коротко: этот файл содержит код для части системы.
+Ниже в коде добавлены комментарии и понятные имена, чтобы было легче читать.
+"""
+
 from typing import Optional
 
 from pydantic import BaseModel
