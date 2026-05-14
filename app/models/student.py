@@ -1,4 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy.orm import relationship
+
 from app.database import Base
 
 
@@ -14,5 +16,6 @@ class Student(Base):
     parent_phone = Column(String, nullable=True)
 
     status = Column(String, default="active")
-
     notes = Column(Text, nullable=True)
+
+    parents = relationship("Parent", secondary="parent_students", back_populates="children")
