@@ -7,6 +7,7 @@ class StudentCreate(BaseModel):
     phone: Optional[str] = None
     parent_name: Optional[str] = None
     parent_phone: Optional[str] = None
+    parent_id: Optional[int] = None
     notes: Optional[str] = None
 
 

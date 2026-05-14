@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -26,6 +27,7 @@ import {
   getStudents,
   type Student,
 } from '../api/students'
+import { createParent, getParents, type Parent } from '../api/parents'
 
 function splitFullName(fullName: string) {
   const parts = fullName.trim().split(/\s+/).filter(Boolean)
@@ -38,21 +40,25 @@ function splitFullName(fullName: string) {
 
 export default function StudentsPage() {
   const [rows, setRows] = useState<Student[]>([])
+  const [parents, setParents] = useState<Parent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
   const [lastName, setLastName] = useState('')
   const [firstName, setFirstName] = useState('')
   const [middleName, setMiddleName] = useState('')
-  const [parentName, setParentName] = useState('')
+  const [selectedParent, setSelectedParent] = useState<Parent | null>(null)
+  const [newParentName, setNewParentName] = useState('')
+  const [newParentPhone, setNewParentPhone] = useState('')
   const [newStudentPhone, setNewStudentPhone] = useState('')
 
   async function loadStudents() {
     setLoading(true)
     setError(null)
     try {
-      const data = await getStudents()
-      setRows(data)
+      const [studentsData, parentsData] = await Promise.all([getStudents(), getParents()])
+      setRows(studentsData)
+      setParents(parentsData)
     } catch (requestError) {
       const message =
         requestError instanceof Error ? requestError.message : 'Не удалось загрузить список детей'
@@ -74,9 +80,23 @@ export default function StudentsPage() {
 
     try {
       const fullName = [lastName.trim(), firstName.trim(), middleName.trim()].filter(Boolean).join(' ')
+      let parentId = selectedParent?.id
+      let parentName = selectedParent?.full_name
+      let parentPhone = selectedParent?.phone
+
+      if (!parentId && newParentName.trim() && newParentPhone.trim()) {
+        const createdParent = await createParent({ full_name: newParentName.trim(), phone: newParentPhone.trim(), student_ids: [] })
+        setParents((prev) => [...prev, createdParent])
+        parentId = createdParent.id
+        parentName = createdParent.full_name
+        parentPhone = createdParent.phone
+      }
+
       const created = await createStudent({
         full_name: fullName,
-        parent_name: parentName.trim() || undefined,
+        parent_id: parentId,
+        parent_name: parentName,
+        parent_phone: parentPhone,
         phone: newStudentPhone.trim() || undefined,
       })
       setRows((prev) => [...prev, created])
@@ -84,7 +104,9 @@ export default function StudentsPage() {
       setLastName('')
       setFirstName('')
       setMiddleName('')
-      setParentName('')
+      setSelectedParent(null)
+      setNewParentName('')
+      setNewParentPhone('')
       setNewStudentPhone('')
       setError(null)
     } catch (requestError) {
@@ -97,7 +119,7 @@ export default function StudentsPage() {
   async function handleDeleteStudent(studentId: number) {
     try {
       await deleteStudent(studentId)
-      setRows((prev) => prev.filter((student) => student.id !== studentId))
+      await loadStudents()
       setError(null)
     } catch (requestError) {
       const message =
@@ -154,17 +176,17 @@ export default function StudentsPage() {
                     <TableCell>{parsedName.firstName || '-'}</TableCell>
                     <TableCell>{parsedName.middleName || '-'}</TableCell>
                     <TableCell>{row.parent_name ?? '-'}</TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      aria-label="удалить ребенка"
-                      color="error"
-                      onClick={() => {
-                        void handleDeleteStudent(row.id)
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        aria-label="удалить ребенка"
+                        color="error"
+                        onClick={() => {
+                          void handleDeleteStudent(row.id)
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 )
               })
@@ -176,52 +198,23 @@ export default function StudentsPage() {
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle>Новый ребенок</DialogTitle>
         <DialogContent>
-          <TextField
-            margin="dense"
-            label="Фамилия"
-            value={lastName}
-            onChange={(event) => setLastName(event.target.value)}
-            fullWidth
-            required
+          <TextField margin="dense" label="Фамилия" value={lastName} onChange={(event) => setLastName(event.target.value)} fullWidth required />
+          <TextField margin="dense" label="Имя" value={firstName} onChange={(event) => setFirstName(event.target.value)} fullWidth required />
+          <TextField margin="dense" label="Отчество" value={middleName} onChange={(event) => setMiddleName(event.target.value)} fullWidth />
+          <Autocomplete
+            options={parents}
+            getOptionLabel={(option) => `${option.full_name} (${option.phone})`}
+            value={selectedParent}
+            onChange={(_, value) => setSelectedParent(value)}
+            renderInput={(params) => <TextField {...params} margin="dense" label="Выбрать существующего родителя" fullWidth />}
           />
-          <TextField
-            margin="dense"
-            label="Имя"
-            value={firstName}
-            onChange={(event) => setFirstName(event.target.value)}
-            fullWidth
-            required
-          />
-          <TextField
-            margin="dense"
-            label="Отчество"
-            value={middleName}
-            onChange={(event) => setMiddleName(event.target.value)}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="Родитель"
-            value={parentName}
-            onChange={(event) => setParentName(event.target.value)}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            label="Телефон"
-            value={newStudentPhone}
-            onChange={(event) => setNewStudentPhone(event.target.value)}
-            fullWidth
-          />
+          <TextField margin="dense" label="Новый родитель (ФИО)" value={newParentName} onChange={(event) => setNewParentName(event.target.value)} fullWidth />
+          <TextField margin="dense" label="Новый родитель (Телефон)" value={newParentPhone} onChange={(event) => setNewParentPhone(event.target.value)} fullWidth />
+          <TextField margin="dense" label="Телефон ребенка" value={newStudentPhone} onChange={(event) => setNewStudentPhone(event.target.value)} fullWidth />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Отмена</Button>
-          <Button
-            variant="contained"
-            onClick={() => {
-              void handleCreateStudent()
-            }}
-          >
+          <Button variant="contained" onClick={() => { void handleCreateStudent() }}>
             Сохранить
           </Button>
         </DialogActions>

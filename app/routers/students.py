@@ -5,6 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
+from app.models.parent import Parent
 from app.models.student import Student
 
 from app.schemas.student import (
@@ -19,14 +20,43 @@ router = APIRouter(
 )
 
 
+def cleanup_orphan_parents(db: Session):
+    parents = db.query(Parent).all()
+    for parent in parents:
+        active_children = [child for child in parent.children if child.status == "active"]
+        if len(active_children) == 0:
+            db.delete(parent)
+
+
 @router.post("/", response_model=StudentResponse)
 def create_student(
     student: StudentCreate,
     db: Session = Depends(get_db)
 ):
-    db_student = Student(**student.model_dump())
+    payload = student.model_dump(exclude={"parent_id"})
+    db_student = Student(**payload)
 
     db.add(db_student)
+    db.flush()
+
+    parent = None
+    if student.parent_id:
+        parent = db.get(Parent, student.parent_id)
+        if not parent:
+            raise HTTPException(status_code=404, detail="Parent not found")
+    elif student.parent_name and student.parent_phone:
+        parent = (
+            db.query(Parent)
+            .filter(Parent.full_name == student.parent_name, Parent.phone == student.parent_phone)
+            .first()
+        )
+        if not parent:
+            parent = Parent(full_name=student.parent_name, phone=student.parent_phone)
+            db.add(parent)
+            db.flush()
+
+    if parent:
+        parent.children.append(db_student)
 
     db.commit()
 
@@ -114,6 +144,7 @@ def update_student(
     for key, value in update_values.items():
         setattr(student, key, value)
 
+    cleanup_orphan_parents(db)
     db.commit()
 
     db.refresh(student)
@@ -139,7 +170,7 @@ def delete_student(
         )
 
     db.delete(student)
-
+    cleanup_orphan_parents(db)
     db.commit()
 
     return {
