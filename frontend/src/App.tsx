@@ -5,6 +5,7 @@ import AttendancePage from './pages/AttendancePage'
 import DashboardPage from './pages/DashboardPage'
 import GroupsPage from './pages/GroupsPage'
 import StudentsPage from './pages/StudentsPage'
+import PaymentsPage from './pages/PaymentsPage'
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="students" element={<StudentsPage />} />
           <Route path="groups" element={<GroupsPage />} />
           <Route path="attendance" element={<AttendancePage />} />
+          <Route path="payments" element={<PaymentsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
